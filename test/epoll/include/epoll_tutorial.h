@@ -20,6 +20,9 @@
 
 // for stderr
 #include <stdio.h>
+
+// for inet_ntoa
+#include<arpa/inet.h>
 using namespace std;
 
 /**

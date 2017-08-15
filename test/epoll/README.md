@@ -23,3 +23,7 @@ epoll　test
 	};
 	
 	可以使用inet_aton,inet_ntoa将点分十进制与一个整数进行转换
+	使用inet_aton/inet_ntoa需要包含的头文件是#include<arpa/inet.h>
+	inet_ntoa(char* in_addr)，参数不需要给到s_addr，只要给到in_addr就够了。
+	
+在本机上运行，最终会得到inet_ntoa的结果是"0.0.0.0"

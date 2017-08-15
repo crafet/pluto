@@ -29,7 +29,8 @@ int Tutorial::CreateBind() {
 	for (index=0,rp = result; rp != NULL; rp = rp->ai_next,index++) {
         cout << "index: " << index << endl;
         sockaddr_in* tp = (sockaddr_in*)(rp->ai_addr);
-        cout << "family: " << rp->ai_family << ", addr: " << tp->sin_addr.s_addr << endl;
+        //cout << "family: " << rp->ai_family << ", addr: " << tp->sin_addr.s_addr << endl;
+        cout << "family: " << rp->ai_family << ", addr: " << inet_ntoa(tp->sin_addr) << endl;
 		sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 		if (sfd == -1)
 			continue;
