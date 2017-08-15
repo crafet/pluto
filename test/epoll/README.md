@@ -1,5 +1,6 @@
 epoll　test
 
+1. 结构体定义
 >
 	结构体sockaddr与socketaddr_in本质上是一致的。sockaddr的定义是
 	struct sockaddr
