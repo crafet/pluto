@@ -55,6 +55,28 @@ int Tutorial::CreateBind() {
 	return sfd;
 }
 
+
+int Tutorial::SetNonBlock(int fd) {
+
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags == -1) {
+		fprintf(stderr, "failed to get flags of fd: %d\n", fd);
+		return -1;
+	}
+
+	fprintf(stdout, "before set flags: %d\n", flags);
+	flags |= O_NONBLOCK;
+	fprintf(stdout, "after set flags: %d\n", flags);
+	int s =  fcntl(fd, F_SETFL, flags);
+	if (s == -1) {
+		fprintf(stderr, "failed to set non block for fd\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+
 }// namespace
 
 // appendix

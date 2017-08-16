@@ -23,6 +23,9 @@
 
 // for inet_ntoa
 #include<arpa/inet.h>
+
+// for fcntl api to set the non block attribute of fd
+#include <fcntl.h>
 using namespace std;
 
 /**
@@ -39,6 +42,9 @@ public:
         this->port = port;
     }
 	int CreateBind();
+
+	// set fd as non block;
+	int SetNonBlock(int fd);
 
 private:
 

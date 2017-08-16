@@ -2,7 +2,7 @@ GCC=gcc
 FLAG= -O2 -Iinclude -lstdc++
 
 
-all: epoll_tutorial.o main.o tutorial
+all: epoll_tutorial.o main.o tutorial clean
 
 ## if exist file "all" in this directory
 ## then make all will do nothing

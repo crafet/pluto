@@ -10,6 +10,8 @@ int main() {
     Tutorial* t = new Tutorial("127.0.0.1", "9191");
     int epollfd = t->CreateBind();    
     
+
+    t->SetNonBlock(epollfd);
     delete t;
 	return 0;
 }
