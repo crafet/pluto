@@ -77,6 +77,50 @@ int Tutorial::SetNonBlock(int fd) {
 }
 
 
+int Tutorial::Run() {
+    fprintf(stdout, "epoll starts...\n");
+
+    //used for listenfd
+    epoll_event event;
+
+    // used for epoll_wait, while epoll_wait returns, the readable event or writeable event will stores in events array
+    epoll_event* events;
+
+    // get fd
+    int sfd = this->CreateBind();
+
+    if (this->SetNonBlock(sfd) < 0) {
+    	fprintf(stderr, "failed to set non block\n");
+    	return -1;
+    }
+
+    int efd = epoll_create(1024);
+    fprintf(stdout, "success to create epoll fd: %d\n", efd);
+    if (efd < 0) {
+    	return -1;
+    }
+
+    event.data.fd = efd;
+
+    // edge trigger will notice only once while the fd is readable or writeable
+    // so the upstream should read or write the buffer of fd using a while loop
+    fprintf(stdout, "before set events: %d\n", event.events);
+    event.events = EPOLLIN|EPOLLET;
+    fprintf(stdout, "after set events: %d\n", event.events);
+
+
+    // add the listen fd (sfd) associated to epoll fd(efd), let the efd monitor the event of sfd;
+    int s = epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &event);
+
+    if (s < 0) {
+    
+        fprintf(stderr, "failed to associated listen fd: %d to epoll fd: %d", sfd, efd);
+        return -1;
+    }
+
+    return 0;
+}
+
 }// namespace
 
 // appendix

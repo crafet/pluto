@@ -46,6 +46,8 @@ public:
 	// set fd as non block;
 	int SetNonBlock(int fd);
 
+
+    int Run();
 private:
 
 	// listen at host:port

@@ -26,4 +26,22 @@ epoll tutorial
 	使用inet_aton/inet_ntoa需要包含的头文件是#include<arpa/inet.h>
 	inet_ntoa(char* in_addr)，参数不需要给到s_addr，只要给到in_addr就够了。
 	
-在本机上运行，最终会得到inet_ntoa的结果是"0.0.0.0"
+	在本机上运行，最终会得到inet_ntoa的结果是"0.0.0.0"
+	
+2. epoll结构体
+定义的epoll_event的结构体内容如下
+> 
+	typedef union epoll_data {
+		void        *ptr;
+		int          fd;
+		__uint32_t   u32;
+		__uint64_t   u64;
+	} epoll_data_t;
+
+	struct epoll_event {
+		__uint32_t   events; /* Epoll events */
+		epoll_data_t data;   /* User data variable */
+	};
+	这里的epoll_data是union结构，其中一般用来存放fd信息。
+	epoll_event中的events则是用于监测的事件，data则是用于存放fd信息。
+	
