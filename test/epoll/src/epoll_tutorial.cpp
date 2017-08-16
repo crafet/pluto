@@ -97,13 +97,16 @@ int Tutorial::Run() {
     	return -1;
     }
 
+    listen(sfd, 1024);
+
     int efd = epoll_create(1024);
     fprintf(stdout, "success to create epoll fd: %d\n", efd);
     if (efd < 0) {
     	return -1;
     }
 
-    event.data.fd = efd;
+    // add listen fd to epollfd
+    event.data.fd = sfd;
 
     // edge trigger will notice only once while the fd is readable or writeable
     // so the upstream should read or write the buffer of fd using a while loop
@@ -131,9 +134,97 @@ int Tutorial::Run() {
     } 
 
 
-
     fprintf(stdout, "events size: %d, EPOLLET %d\n", sizeof(events), EPOLLET);
 
+    while (true) {
+    	// -1 means wait for indefinitely
+    	int n = epoll_wait(efd, events, kMaxFDCount, -1);
+    	for (int i = 0; i <n; i++) {
+    		// if event is EPOLLERR
+    		// if event is EPOLLHUP
+    		// IF event is not EPOLLIN, not a readable event
+    		if (events[i].events & EPOLLERR || events[i].events&EPOLLHUP || (!events[i].events & EPOLLIN)) {
+    			fprintf(stderr, "index[%d] fd[%d] occer error, close it and continue to loop\n", i, events[i].data.fd);
+    			close(events[i].data.fd);
+    			continue;
+
+    		} else if (sfd == events[i].data.fd) {
+    			// if the listen fd
+    			fprintf(stdout, "evented fd is sfd\n");
+    			struct sockaddr in_addr;
+    			socklen_t in_len = sizeof(in_addr);
+    			int infd;
+
+    			infd = accept(sfd, &in_addr, &in_len);
+    			if (infd == -1) {
+    				fprintf(stderr, "failed to accept fd");
+    				return -1;
+    			}
+
+    			struct sockaddr client_addr;
+    			socklen_t client_len = sizeof(client_addr);
+    			getpeername(infd, &client_addr, &client_len);
+    			sockaddr_in* client_in_addr = (sockaddr_in*)(&client_addr);
+    			fprintf(stdout, "success to accept fd: %d, host :%s, port: %d\n", infd, inet_ntoa(client_in_addr->sin_addr),
+    					client_in_addr->sin_port);
+
+    			// set it as non block
+    			int ret = this->SetNonBlock(infd);
+    			if (ret < 0) {
+    				//should not happen
+    			}
+
+    			event.data.fd = infd;
+    			event.events =  EPOLLIN | EPOLLET;
+    			epoll_ctl(efd, EPOLL_CTL_ADD, infd, &event);
+
+    		} else {
+
+    			// we have socket readable or writeable
+    			// using loop to read or write
+    			fprintf(stdout, "we have events to handle, fd: %d\n", events[i].data.fd);
+    			char buf[512];
+    			while (true) {
+    				int count = read(events[i].data.fd, buf, sizeof(buf));
+    				if (count == 0) {
+    					fprintf(stderr, "fd %d has been closed", events[i].data.fd);
+    					close(events[i].data.fd);
+    					break;
+    				}
+
+    				// if -1 returns ,need to check the error and break the while loop
+    				if (count == -1) {
+    					switch(errno) {
+    						// EAGAIN is EWOULDBLOCK, so check only one is ok
+    						//case EAGAIN:
+    						case EWOULDBLOCK:
+    							fprintf(stderr, "fd %d is EAGAIN or EWOULDBLOCK break the loop\n", events[i].data.fd);
+    							break;
+    						case EINTR:
+    							fprintf(stderr, "fd %d is EINTR continue\n", events[i].data.fd);
+    							// continue to read
+    							continue;
+    						default:
+    							fprintf(stderr, "fd %d is default handle method \n", events[i].data.fd);
+    							break;
+    					}
+
+    					fprintf(stdout, "read fd %d count -1, need to break the while read loop\n", events[i].data.fd);
+    					break;
+    				} // if -1
+
+    				//normal
+    				fprintf(stdout, "while read");
+    			} // while
+    		} // else
+
+
+    		fprintf(stdout, "i %d\n", i);
+    	} //for
+
+    	fprintf(stdout, "out of for\n");
+
+    }
     return 0;
 }
 

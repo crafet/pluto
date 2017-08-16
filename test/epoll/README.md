@@ -14,7 +14,7 @@ epoll tutorial
     {
        short int               sin_family;   //地址族
        unsigned short int      sin_port;      //端口号
-       struct in_addr          in_addr;      //ip地址
+       struct in_addr          sin_addr;      //ip地址
        unsigned char           sin_zero[8];  //填充
     }
 	下面的三个字段相当于sockaddr中的sa_data结构。

@@ -29,6 +29,9 @@
 
 // for calloc
 #include <stdlib.h>
+
+// for EAGAIN/EWOULDBLOCK/EINTR
+#include <errno.h>
 using namespace std;
 
 /**
