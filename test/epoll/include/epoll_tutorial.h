@@ -26,6 +26,9 @@
 
 // for fcntl api to set the non block attribute of fd
 #include <fcntl.h>
+
+// for calloc
+#include <stdlib.h>
 using namespace std;
 
 /**

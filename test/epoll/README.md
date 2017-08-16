@@ -44,4 +44,22 @@ epoll tutorial
 	};
 	这里的epoll_data是union结构，其中一般用来存放fd信息。
 	epoll_event中的events则是用于监测的事件，data则是用于存放fd信息。
+3. socket的read接口
+查看manual的关于return value的说明
+> 
+	On success, the number of bytes read is returned (zero indicates end
+	of file), and the file position is advanced by this number.  It is
+	not an error if this number is smaller than the number of bytes
+	requested; this may happen for example because fewer bytes are
+	actually available right now (maybe because we were close to end-of-
+    file, or because we are reading from a pipe, or from a terminal), or
+    because read() was interrupted by a signal.  See also NOTES.
+
+    On error, -1 is returned, and errno is set appropriately.  In this
+    case, it is left unspecified whether the file position (if any)
+    changes.
 	
+	返回0，代表EOF，read的字节数少于期望的值正常，会由于多种情况导致。如果返回值为0，说明不需要在这个sock上进行读了。
+	如果返回-1，此时需要判断error这个字段的值。
+			如果返回error=EINTR那么此时需要继续while loop
+			如果error=EAGAIN or error=EWOULDBLOCK，表示在这个nonblock的fd上没读写事件，会立即返回。

@@ -5,6 +5,8 @@
 
 namespace pluto {
 
+
+const uint32_t kMaxFDCount = 64;
 // create fd
 int Tutorial::CreateBind() {
 	struct addrinfo hints;
@@ -82,9 +84,10 @@ int Tutorial::Run() {
 
     //used for listenfd
     epoll_event event;
+    memset(&event, 0, sizeof(event));
 
     // used for epoll_wait, while epoll_wait returns, the readable event or writeable event will stores in events array
-    epoll_event* events;
+    epoll_event* events = NULL;
 
     // get fd
     int sfd = this->CreateBind();
@@ -117,6 +120,19 @@ int Tutorial::Run() {
         fprintf(stderr, "failed to associated listen fd: %d to epoll fd: %d", sfd, efd);
         return -1;
     }
+
+
+    // get buffer for events for epoll_wait
+    fprintf(stdout, "sizeof(epoll_event): %d\n", sizeof(epoll_event));
+    events = (epoll_event*)calloc(kMaxFDCount, sizeof(event));
+    if (events == NULL) {
+        fprintf(stderr, "failed to calloc for arrya events");
+        return -1;
+    } 
+
+
+
+    fprintf(stdout, "events size: %d, EPOLLET %d\n", sizeof(events), EPOLLET);
 
     return 0;
 }
