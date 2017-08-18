@@ -163,7 +163,10 @@ int Tutorial::Run() {
 
     			struct sockaddr client_addr;
     			socklen_t client_len = sizeof(client_addr);
-    			getpeername(infd, &client_addr, &client_len);
+    			if (getpeername(infd, &client_addr, &client_len) < 0) {
+    				fprintf(stderr, "failed to getpeername for fd: %d", infd);
+    			}
+
     			sockaddr_in* client_in_addr = (sockaddr_in*)(&client_addr);
     			fprintf(stdout, "success to accept fd: %d, host :%s, port: %d\n", infd, inet_ntoa(client_in_addr->sin_addr),
     					client_in_addr->sin_port);
@@ -225,6 +228,10 @@ int Tutorial::Run() {
     	fprintf(stdout, "out of for\n");
 
     }
+
+    // release the events array
+    free(events);
+
     return 0;
 }
 

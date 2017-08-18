@@ -1,7 +1,11 @@
 
 #include "epoll_tutorial.h"
 
+#include "buffer.h"
+
 using pluto::Tutorial;
+using pluto::Buffer;
+
 
 int main() {
 	
@@ -18,5 +22,5 @@ int main() {
     }
 
     delete t;
-	return 0;
+    return 0;
 }

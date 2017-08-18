@@ -45,7 +45,7 @@ epoll tutorial
 	这里的epoll_data是union结构，其中一般用来存放fd信息。
 	epoll_event中的events则是用于监测的事件，data则是用于存放fd信息。
 3. socket的read接口
-查看manual的关于return value的说明
+### 查看manual的关于return value的说明
 > 
 	On success, the number of bytes read is returned (zero indicates end
 	of file), and the file position is advanced by this number.  It is
@@ -54,7 +54,7 @@ epoll tutorial
 	actually available right now (maybe because we were close to end-of-
     file, or because we are reading from a pipe, or from a terminal), or
     because read() was interrupted by a signal.  See also NOTES.
-
+	
     On error, -1 is returned, and errno is set appropriately.  In this
     case, it is left unspecified whether the file position (if any)
     changes.
@@ -63,3 +63,17 @@ epoll tutorial
 	如果返回-1，此时需要判断error这个字段的值。
 			如果返回error=EINTR那么此时需要继续while loop
 			如果error=EAGAIN or error=EWOULDBLOCK，表示在这个nonblock的fd上没读写事件，会立即返回。
+	总之，对于返回的-1情况都不再需要loop，等待下一次的事件通知。
+
+4. ev anatomy tutorial
+一般的接口使用方式为
+>
+	将watcher与callbackfun绑定
+	ev_init(watcher, callbackfunc)
+	设置watcher需要监听的读写事件
+	ev_io_set(watcher, READ/WRITE)
+	将watcher绑定到loop上。
+	ev_io_start(loop, watcher)
+	调用ev_run,将loop运行起来
+	ev_run(loop, 0)
+ev_TYPE定义了各种watcher，这里的TYPE可以是IO，可以是timer等类型。使用者只要负责将生成watcher即可。
